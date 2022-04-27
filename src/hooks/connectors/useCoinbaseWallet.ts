@@ -1,5 +1,6 @@
-import { useConnect } from "../useConnect";
+import { useCallback } from "react";
 import invariant from "tiny-invariant";
+import { useConnect } from "wagmi";
 
 /**
  * Hook for connecting to a Coinbase wallet.
@@ -31,19 +32,14 @@ import invariant from "tiny-invariant";
  * @public
  */
 export function useCoinbaseWallet() {
-  const [connectors, connect] = useConnect();
-  if (connectors.loading) {
-    return () => Promise.reject("Coinbase connector not ready to be used, yet");
-  }
-  const connector = connectors.data.connectors.find(
-    (c) => c.id === "coinbasewallet",
-  );
+  const { connectors, connect } = useConnect();
+  const connector = connectors.find((c) => c.id === "coinbaseWallet");
+
   invariant(
     connector,
     "Coinbase connector not found, please make sure it is provided to your <ThirdwebProvider />",
   );
-
-  return () => connect(connector);
+  return useCallback(() => connect(connector), [connect, connector]);
 }
 
 /**

@@ -1,23 +1,22 @@
+import { useAddress } from "./useAddress";
+import { useChainId } from "./useChainId";
 import { Signer } from "ethers";
 import { useEffect, useRef } from "react";
-import { useAccount, useNetwork, useSigner as useWagmiSigner } from "wagmi";
+import { useSigner as useWagmiSigner } from "wagmi";
 
 /**
  *
  * @internal
  */
 export function useSigner() {
-  const [signer, getSigner] = useWagmiSigner();
-  const [account] = useAccount();
-  const [network] = useNetwork();
+  const { data: signer, refetch: getSigner } = useWagmiSigner();
+  const address = useAddress();
+  const chainId = useChainId();
 
   const _getSignerPromise = useRef<ReturnType<typeof getSigner> | null>(null);
 
-  const address = account.data?.address;
-  const chainId = network.data.chain?.id;
-
-  const previousAddress = usePrevious(account.data?.address);
-  const previousChainId = usePrevious(network.data?.chain?.id);
+  const previousAddress = usePrevious(address);
+  const previousChainId = usePrevious(chainId);
 
   useEffect(() => {
     if (address !== previousAddress || chainId !== previousChainId) {
@@ -31,7 +30,7 @@ export function useSigner() {
     }
   }, [address, chainId, previousAddress, previousChainId]);
 
-  return Signer.isSigner(signer.data) ? signer.data : undefined;
+  return Signer.isSigner(signer) ? signer : undefined;
 }
 
 function usePrevious<TVal>(value: TVal): TVal | undefined {

@@ -13,11 +13,11 @@ import { useDisconnect } from "@thirdweb-dev/react"
 <b>Signature:</b>
 
 ```typescript
-declare function useDisconnect(): () => void;
+declare function useDisconnect(): react_query.UseMutateAsyncFunction<void, Error, void, unknown>;
 ```
 <b>Returns:</b>
 
-() =&gt; void
+react\_query.UseMutateAsyncFunction&lt;void, Error, void, unknown&gt;
 
 ## Example
 

@@ -34,11 +34,6 @@ import { useDisconnect } from "@thirdweb-dev/react"
  |
 |  [useEdition(contractAddress)](./react.useedition.md) | Hook for getting an instance of an <code>Edition</code> contract. This contract is used to interface with ERC1155 compliant NFTs. |
 |  [useEditionDrop(contractAddress)](./react.useeditiondrop.md) | Hook for getting an instance of an <code>EditionDrop</code> contract. This conract is used to interface with ERC1155 compliant NFTs that can be lazily minted. |
-|  [useMagic()](./react.usemagic.md) | Hook for connecting to an email wallet using magic link. This enables users without their own wallets to connect to your application and sign transactions securely using their email.
-```javascript
-import { useMagic } from "@thirdweb-dev/react"
-```
- |
 |  [useMarketplace(contractAddress)](./react.usemarketplace.md) | Hook for getting an instance of a <code>Marketplace</code> contract. This contract is used to support marketplace for purchase and sale of on-chain assets. |
 |  [useMetamask()](./react.usemetamask.md) | Hook for connecting to a Metamask wallet.
 ```javascript

@@ -1,4 +1,4 @@
-import { useAccount } from "wagmi";
+import { useDisconnect as useWagmiDisconnect } from "wagmi";
 
 /**
  * Hook for disconnecting the currently connected wallet
@@ -29,7 +29,5 @@ import { useAccount } from "wagmi";
  * @public
  */
 export function useDisconnect() {
-  const [, disconnect] = useAccount();
-
-  return disconnect;
+  return useWagmiDisconnect().disconnectAsync;
 }

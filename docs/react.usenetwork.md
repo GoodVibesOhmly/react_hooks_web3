@@ -13,39 +13,29 @@ import { useNetwork } from "@thirdweb-dev/react"
 <b>Signature:</b>
 
 ```typescript
-declare function useNetwork(): readonly [{
-    readonly data: {
-        readonly chain: {
-            id: number;
-            unsupported: boolean | undefined;
-            name?: string | undefined;
-            nativeCurrency?: {
-                name: string;
-                symbol: string;
-                decimals: 18;
-            } | undefined;
-            rpcUrls?: string[] | undefined;
-            blockExplorers?: {
-                name: string;
-                url: string;
-            }[] | undefined;
-            testnet?: boolean | undefined;
-        } | undefined;
-        readonly chains: wagmi.Chain[];
-    };
-    readonly error: Error | undefined;
-    readonly loading: boolean | undefined;
-}, ((chainId: number) => Promise<{
-    data: undefined;
-    error: wagmi.SwitchChainError;
-} | {
-    data: wagmi.Chain | undefined;
-    error: undefined;
-}>) | undefined];
+declare function useNetwork(): {
+    readonly activeChain: (wagmi.Chain & {
+        id: number;
+        unsupported?: boolean | undefined;
+    }) | undefined;
+    readonly chains: wagmi.Chain[];
+    readonly data: wagmi.Chain | undefined;
+    readonly error: Error | null;
+    readonly isError: boolean;
+    readonly isIdle: boolean;
+    readonly isLoading: boolean;
+    readonly isSuccess: boolean;
+    readonly pendingChainId: number | undefined;
+    readonly reset: () => void;
+    readonly status: "error" | "idle" | "loading" | "success";
+    readonly switchNetwork: ((chainId_?: number | undefined) => void) | undefined;
+    readonly switchNetworkAsync: ((chainId_?: number | undefined) => Promise<wagmi.Chain>) | undefined;
+    readonly variables: _wagmi_core.SwitchNetworkArgs | undefined;
+};
 ```
 <b>Returns:</b>
 
-readonly \[{ readonly data: { readonly chain: { id: number; unsupported: boolean \| undefined; name?: string \| undefined; nativeCurrency?: { name: string; symbol: string; decimals: 18; } \| undefined; rpcUrls?: string\[\] \| undefined; blockExplorers?: { name: string; url: string; }\[\] \| undefined; testnet?: boolean \| undefined; } \| undefined; readonly chains: wagmi.Chain\[\]; }; readonly error: Error \| undefined; readonly loading: boolean \| undefined; }, ((chainId: number) =&gt; Promise&lt;{ data: undefined; error: wagmi.SwitchChainError; } \| { data: wagmi.Chain \| undefined; error: undefined; }&gt;) \| undefined\]
+{ readonly activeChain: (wagmi.Chain &amp; { id: number; unsupported?: boolean \| undefined; }) \| undefined; readonly chains: wagmi.Chain\[\]; readonly data: wagmi.Chain \| undefined; readonly error: Error \| null; readonly isError: boolean; readonly isIdle: boolean; readonly isLoading: boolean; readonly isSuccess: boolean; readonly pendingChainId: number \| undefined; readonly reset: () =&gt; void; readonly status: "error" \| "idle" \| "loading" \| "success"; readonly switchNetwork: ((chainId\_?: number \| undefined) =&gt; void) \| undefined; readonly switchNetworkAsync: ((chainId\_?: number \| undefined) =&gt; Promise&lt;wagmi.Chain&gt;) \| undefined; readonly variables: \_wagmi\_core.SwitchNetworkArgs \| undefined; }
 
 ## Example
 

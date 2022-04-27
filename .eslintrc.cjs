@@ -4,10 +4,11 @@ module.exports = {
     "plugin:@typescript-eslint/recommended",
     "plugin:import/typescript",
     "plugin:prettier/recommended",
+    "plugin:react/recommended",
   ],
   rules: {
     // tsdoc
-    "tsdoc/syntax": "warn",
+    // "tsdoc/syntax": "warn",
     // typescript
     "@typescript-eslint/ban-ts-comment": [
       "error",
@@ -34,9 +35,16 @@ module.exports = {
     // import
     "import/first": "error",
     "import/newline-after-import": "error",
-    "import/no-cycle": "warn",
+    "import/no-cycle": "error",
     "import/no-default-export": "off",
     "import/no-useless-path-segments": "error",
+    // react
+    "react/forbid-dom-props": ["error", { forbid: ["className", "style"] }],
+    "react/no-children-prop": "off",
+    "react/prop-types": "off",
+    // react-hooks
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
     // eslint
     curly: "error",
     eqeqeq: "error",
@@ -94,18 +102,24 @@ module.exports = {
     "@typescript-eslint",
     "import",
     "inclusive-language",
-    "eslint-plugin-tsdoc",
+    "react",
+    "react-hooks",
   ],
   parserOptions: {
-    // project: "./tsconfig.json",
-    // tsconfigRootDir: __dirname,
     ecmaVersion: 2019,
     ecmaFeatures: {
       impliedStrict: true,
+      jsx: true,
     },
     warnOnUnsupportedTypeScriptVersion: true,
   },
-  settings: {},
+  settings: {
+    react: {
+      createClass: "createReactClass",
+      pragma: "React",
+      version: "detect",
+    },
+  },
   overrides: [
     // enable rule specifically for TypeScript files
     {

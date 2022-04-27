@@ -6,44 +6,44 @@
 
 /// <reference types="node" />
 
-import { allChains } from './constants';
-import { Balance } from './types';
-import { balanceAction } from './actions';
-import { BalanceActionArgs } from './actions';
-import { BalanceActionResult } from './actions';
-import { BaseProvider } from '@ethersproject/providers';
-import { chain } from './constants';
-import { Chain as Chain_2 } from './types';
+import { alchemyRpcUrls } from '@wagmi/core';
+import { allChains } from '@wagmi/core';
+import type { BaseProvider } from '@ethersproject/providers';
+import { Chain } from '@wagmi/core';
+import { chain } from '@wagmi/core';
 import { ChainId } from '@thirdweb-dev/sdk';
+import { chainId } from '@wagmi/core';
+import { Client } from '@wagmi/core';
+import { ClientConfig as ClientConfig_2 } from '@wagmi/core';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
-import { Connector } from './connectors';
-import { ConnectorData } from './connectors';
-import { ConnectorEvents } from './connectors';
+import { Connector } from '@wagmi/core';
+import { ConnectorData } from '@wagmi/core';
+import { ConnectorEvents } from '@wagmi/core';
 import { ContractForContractType } from '@thirdweb-dev/sdk';
 import { ContractType } from '@thirdweb-dev/sdk';
+import { createStorage } from '@wagmi/core';
+import { createWagmiStorage } from '@wagmi/core';
 import { CustomContract } from '@thirdweb-dev/sdk';
-import { defaultChains } from './constants';
-import { defaultL2Chains } from './constants';
-import { developmentChains } from './constants';
+import { defaultChains } from '@wagmi/core';
+import { defaultL2Chains } from '@wagmi/core';
 import { Edition } from '@thirdweb-dev/sdk';
 import { EditionDrop } from '@thirdweb-dev/sdk';
-import { erc1155ABI } from './constants';
-import { erc20ABI } from './constants';
+import { erc20ABI } from '@wagmi/core';
 import { Erc721 } from '@thirdweb-dev/sdk';
-import { erc721ABI } from './constants';
+import { erc721ABI } from '@wagmi/core';
+import { etherscanBlockExplorers } from '@wagmi/core';
+import { infuraRpcUrls } from '@wagmi/core';
 import { InjectedConnector } from 'wagmi/connectors/injected';
-import { InjectedConnector as InjectedConnector_2 } from './connectors';
 import { IpfsStorage } from '@thirdweb-dev/sdk';
 import { IStorage } from '@thirdweb-dev/sdk';
-import { LoginWithMagicLinkConfiguration } from 'magic-sdk';
 import { MagicSDKAdditionalConfiguration } from 'magic-sdk';
 import { Marketplace } from '@thirdweb-dev/sdk';
 import { NetworkOrSignerOrProvider } from '@thirdweb-dev/sdk';
 import { NFTCollection } from '@thirdweb-dev/sdk';
 import { NFTDrop } from '@thirdweb-dev/sdk';
 import { NFTMetadata } from '@thirdweb-dev/sdk';
-import { normalizeChainId } from './utils';
 import { Pack } from '@thirdweb-dev/sdk';
+import { Persister } from 'react-query/persistQueryClient';
 import { QueryAllParams } from '@thirdweb-dev/sdk';
 import { QueryClient } from 'react-query';
 import { default as React_2 } from 'react';
@@ -52,86 +52,63 @@ import * as react_query from 'react-query';
 import { SDKOptions } from '@thirdweb-dev/sdk';
 import { Signer as Signer_2 } from 'ethers';
 import { Split } from '@thirdweb-dev/sdk';
+import { Storage as Storage_2 } from '@wagmi/core';
 import { SUPPORTED_CHAIN_ID } from '@thirdweb-dev/sdk';
 import * as _thirdweb_dev_sdk from '@thirdweb-dev/sdk';
 import { ThirdwebSDK } from '@thirdweb-dev/sdk';
 import { Token } from '@thirdweb-dev/sdk';
 import { TokenDrop } from '@thirdweb-dev/sdk';
-import { Unit } from './types';
-import { units } from './constants';
+import { Unit } from '@wagmi/core';
 import { useAccount } from './hooks';
 import { useBalance } from './hooks';
 import { useBlockNumber } from './hooks';
-import { useConnect as useConnect_2 } from './hooks';
+import { useConnect } from './hooks';
 import { useContract as useContract_2 } from './hooks';
 import { useContractEvent } from './hooks';
 import { useContractRead } from './hooks';
 import { useContractWrite } from './hooks';
+import { useDisconnect as useDisconnect_2 } from './hooks';
+import { useEnsAddress } from './hooks';
 import { useEnsAvatar } from './hooks';
-import { useEnsLookup } from './hooks';
-import { useEnsResolveName } from './hooks';
+import { useEnsName } from './hooks';
 import { useEnsResolver } from './hooks';
 import { useFeeData } from './hooks';
 import { useNetwork as useNetwork_2 } from './hooks';
 import { useProvider } from './hooks';
+import { useSendTransaction } from './hooks';
 import { useSigner as useSigner_2 } from './hooks';
 import { useSignMessage } from './hooks';
 import { useSignTypedData } from './hooks';
 import { useToken as useToken_2 } from './hooks';
-import { useTransaction } from './hooks';
 import { useWaitForTransaction } from './hooks';
 import { useWebSocketProvider } from './hooks';
 import { ValidContractInstance } from '@thirdweb-dev/sdk';
 import { Vote } from '@thirdweb-dev/sdk';
+import * as _wagmi_core from '@wagmi/core';
+import { WagmiClient } from '@wagmi/core';
+import { WagmiStorage } from '@wagmi/core';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { Web3Provider } from '@ethersproject/providers';
-import { WebSocketProvider } from '@ethersproject/providers';
-
-// @public (undocumented)
-class AddChainError extends Error {
-    // (undocumented)
-    message: string;
-    // (undocumented)
-    name: string;
-}
+import type { WebSocketProvider } from '@ethersproject/providers';
 
 export { ChainId }
-
-// @public (undocumented)
-class ChainNotConfiguredError extends Error {
-    // (undocumented)
-    message: string;
-    // (undocumented)
-    name: string;
-}
 
 // Warning: (ae-forgotten-export) The symbol "SupportedChain" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "Chain" needs to be exported by the entry point index.d.ts
 // Warning: (ae-internal-missing-underscore) The name "ChainRpc" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export type ChainRpc<TSupportedChain extends SupportedChain> = Record<TSupportedChain extends Chain ? TSupportedChain["id"] : TSupportedChain, string>;
+export type ChainRpc<TSupportedChain extends SupportedChain> = Record<TSupportedChain extends Chain_2 ? TSupportedChain["id"] : TSupportedChain, string>;
 
 // @public (undocumented)
-class ConnectorAlreadyConnectedError extends Error {
-    // (undocumented)
-    message: string;
-    // (undocumented)
-    name: string;
-}
+type ClientConfig<TProvider extends BaseProvider = BaseProvider, TWebSocketProvider extends WebSocketProvider = WebSocketProvider> = ClientConfig_2<TProvider, TWebSocketProvider> & {
+    queryClient?: QueryClient;
+    persister?: Persister;
+};
 
 // @public (undocumented)
-class ConnectorNotFoundError extends Error {
-    // (undocumented)
-    message: string;
-    // (undocumented)
-    name: string;
-}
-
-// Warning: (ae-forgotten-export) The symbol "ContextValue" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-const Context: React_3.Context<ContextValue | null>;
+function createClient<TProvider extends BaseProvider, TWebSocketProvider extends WebSocketProvider>({ queryClient, persister, ...config }?: ClientConfig<TProvider, TWebSocketProvider>): WagmiClient<TProvider, TWebSocketProvider> & {
+    queryClient: QueryClient;
+};
 
 // @public
 export interface DAppMetaData {
@@ -154,8 +131,8 @@ export function detectErc721Instance(contract?: ValidContractInstance | CustomCo
 // Warning: (ae-internal-missing-underscore) The name "InjectedConnectorType" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export type InjectedConnectorType = "injected" | "metamask" | {
-    name: "injected" | "metamask";
+export type InjectedConnectorType = InjectedConnector["id"] | "metamask" | {
+    name: InjectedConnector["id"] | "metamask";
     options?: InjectedConnector["options"];
 };
 
@@ -190,24 +167,12 @@ export interface MediaType {
 }
 
 // @public (undocumented)
-type Props = {
-    autoConnect?: boolean;
-    connectorStorageKey?: string;
-    connectors?: Connector[] | ((config: {
-        chainId?: number;
-    }) => Connector[]);
-    provider?: BaseProvider | ((config: {
-        chainId?: number;
-        connector?: Connector;
-    }) => BaseProvider);
-    webSocketProvider?: WebSocketProvider | ((config: {
-        chainId?: number;
-        connector?: Connector;
-    }) => WebSocketProvider | undefined);
-};
+function Provider_2<TProvider extends BaseProvider, TWebSocketProvider extends WebSocketProvider>({ children, client, }: React_3.PropsWithChildren<ProviderProps<TProvider, TWebSocketProvider>>): JSX.Element;
 
 // @public (undocumented)
-const Provider_2: ({ autoConnect, children, connectors: connectors_, connectorStorageKey, provider: provider_, webSocketProvider: webSocketProvider_, }: React_3.PropsWithChildren<Props>) => React_3.FunctionComponentElement<React_3.ProviderProps<ContextValue | null>>;
+type ProviderProps<TProvider extends BaseProvider = BaseProvider, TWebSocketProvider extends WebSocketProvider = WebSocketProvider> = {
+    client?: DecoratedWagmiClient<TProvider, TWebSocketProvider>;
+};
 
 // @public (undocumented)
 export interface SharedMediaProps {
@@ -221,14 +186,6 @@ export interface SharedMediaProps {
     style?: React_2.CSSProperties;
     // (undocumented)
     width?: HTMLIFrameElement["width"];
-}
-
-// @public (undocumented)
-class SwitchChainError extends Error {
-    // (undocumented)
-    message: string;
-    // (undocumented)
-    name: string;
 }
 
 // @public
@@ -248,7 +205,7 @@ export interface ThirdwebProviderProps<TSupportedChain extends SupportedChain = 
     // Warning: (ae-incompatible-release-tags) The symbol "chainRpc" is marked as @public, but its signature references "ChainRpc" which is marked as @internal
     chainRpc?: Partial<ChainRpc<TSupportedChain>>;
     dAppMeta?: DAppMetaData;
-    desiredChainId: TSupportedChain extends Chain ? TSupportedChain["id"] : TSupportedChain | undefined;
+    desiredChainId: TSupportedChain extends Chain_2 ? TSupportedChain["id"] : TSupportedChain | undefined;
     // @beta
     queryClient?: QueryClient;
     sdkOptions?: SDKOptions;
@@ -284,31 +241,13 @@ export function useAddress(): string | undefined;
 // @public
 export function useChainId(): number | undefined;
 
-// @public
-export function useCoinbaseWallet(): () => Promise<{
-    data?: wagmi_core.ConnectorData<any> | undefined;
-    error?: Error | undefined;
-}>;
-
-// Warning: (ae-forgotten-export) The symbol "wagmi" needs to be exported by the entry point index.d.ts
-// Warning: (ae-internal-missing-underscore) The name "useConnect" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal
-export function useConnect(): readonly [{
-    readonly data: {
-        readonly connected: boolean;
-        readonly connector: wagmi.Connector<any, any> | undefined;
-        readonly connectors: wagmi.Connector<any, any>[];
-    };
-    readonly error: Error | undefined;
-    readonly loading: boolean | undefined;
-}, (connector: wagmi.Connector<any, any>) => Promise<{
-    data?: wagmi.ConnectorData<any> | undefined;
-    error?: Error | undefined;
-}>];
-
 // @public (undocumented)
-const useContext: () => ContextValue;
+function useClient<TProvider extends BaseProvider, TWebSocketProvider extends WebSocketProvider = WebSocketProvider>(): DecoratedWagmiClient<TProvider, TWebSocketProvider>;
+
+// @public
+export function useCoinbaseWallet(): () => void;
+
+export { useConnect }
 
 // Warning: (ae-internal-missing-underscore) The name "useContract" should be prefixed with an underscore because the declaration is marked as @internal
 //
@@ -419,7 +358,7 @@ export function useCustomContract(contractAddress?: string): {
 export function useDesiredChainId(): number;
 
 // @public
-export function useDisconnect(): () => void;
+export function useDisconnect(): react_query.UseMutateAsyncFunction<void, Error, void, unknown>;
 
 // @public
 export function useEdition(contractAddress?: string): Edition | undefined;
@@ -428,50 +367,31 @@ export function useEdition(contractAddress?: string): Edition | undefined;
 export function useEditionDrop(contractAddress?: string): EditionDrop | undefined;
 
 // @public
-export function useMagic(): (configuration: LoginWithMagicLinkConfiguration) => Promise<{
-    data?: wagmi_core.ConnectorData<any> | undefined;
-    error?: Error | undefined;
-}>;
-
-// @public
 export function useMarketplace(contractAddress?: string): Marketplace | undefined;
 
 // @public
-export function useMetamask(): () => Promise<{
-    data?: wagmi_core.ConnectorData<any> | undefined;
-    error?: Error | undefined;
-}>;
+export function useMetamask(): () => void;
 
 // @public
-export function useNetwork(): readonly [{
-    readonly data: {
-        readonly chain: {
-            id: number;
-            unsupported: boolean | undefined;
-            name?: string | undefined;
-            nativeCurrency?: {
-                name: string;
-                symbol: string;
-                decimals: 18;
-            } | undefined;
-            rpcUrls?: string[] | undefined;
-            blockExplorers?: {
-                name: string;
-                url: string;
-            }[] | undefined;
-            testnet?: boolean | undefined;
-        } | undefined;
-        readonly chains: wagmi.Chain[];
-    };
-    readonly error: Error | undefined;
-    readonly loading: boolean | undefined;
-}, ((chainId: number) => Promise<{
-    data: undefined;
-    error: wagmi.SwitchChainError;
-} | {
-    data: wagmi.Chain | undefined;
-    error: undefined;
-}>) | undefined];
+export function useNetwork(): {
+    readonly activeChain: (wagmi.Chain & {
+        id: number;
+        unsupported?: boolean | undefined;
+    }) | undefined;
+    readonly chains: wagmi.Chain[];
+    readonly data: wagmi.Chain | undefined;
+    readonly error: Error | null;
+    readonly isError: boolean;
+    readonly isIdle: boolean;
+    readonly isLoading: boolean;
+    readonly isSuccess: boolean;
+    readonly pendingChainId: number | undefined;
+    readonly reset: () => void;
+    readonly status: "error" | "idle" | "loading" | "success";
+    readonly switchNetwork: ((chainId_?: number | undefined) => void) | undefined;
+    readonly switchNetworkAsync: ((chainId_?: number | undefined) => Promise<wagmi.Chain>) | undefined;
+    readonly variables: _wagmi_core.SwitchNetworkArgs | undefined;
+};
 
 // @public
 export function useNetworkMismatch(): boolean;
@@ -517,14 +437,6 @@ export function useResolvedMediaType(uri?: string): {
     mimeType: string | undefined;
 };
 
-// @public (undocumented)
-class UserRejectedRequestError extends Error {
-    // (undocumented)
-    message: string;
-    // (undocumented)
-    name: string;
-}
-
 // Warning: (ae-internal-missing-underscore) The name "useSDK" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
@@ -550,44 +462,39 @@ export function useTokenDrop(contractAddress?: string): TokenDrop | undefined;
 export function useVote(contractAddress?: string): Vote | undefined;
 
 // @public
-export function useWalletConnect(): () => Promise<{
-    data?: wagmi_core.ConnectorData<any> | undefined;
-    error?: Error | undefined;
-}>;
+export function useWalletConnect(): () => void;
 
 // Warning: (ae-internal-missing-underscore) The name "useWalletLink" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal
-export function useWalletLink(): () => Promise<{
-    data?: wagmi_core.ConnectorData<any> | undefined;
-    error?: Error | undefined;
-}>;
+export function useWalletLink(): () => void;
 
 // Warning: (ae-internal-missing-underscore) The name "WalletConnectConnectorType" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export type WalletConnectConnectorType = "walletConnect" | {
-    name: "walletConnect";
-    options: WalletConnectConnector["options"];
+export type WalletConnectConnectorType = WalletConnectConnector["id"] | {
+    name: WalletConnectConnector["id"];
+    options: Omit<WalletConnectConnector["options"], "rpc" | "chainId">;
 };
 
 // Warning: (ae-internal-missing-underscore) The name "WalletConnector" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export type WalletConnector = InjectedConnectorType | WalletConnectConnectorType | WalletLinkConnectorType | MagicConnectorType;
+export type WalletConnector = InjectedConnectorType | WalletConnectConnectorType | WalletLinkConnectorType;
 
 // Warning: (ae-internal-missing-underscore) The name "WalletLinkConnectorType" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export type WalletLinkConnectorType = "walletLink" | "coinbase" | {
-    name: "walletLink" | "coinbase";
-    options: CoinbaseWalletConnector["options"];
+export type WalletLinkConnectorType = CoinbaseWalletConnector["id"] | "walletLink" | {
+    name: CoinbaseWalletConnector["id"] | "walletLink";
+    options: Omit<CoinbaseWalletConnector["options"], "chainId" | "jsonRpcUrl">;
 };
 
 // Warnings were encountered during analysis:
 //
-// dist/index.d.ts:391:5 - (ae-forgotten-export) The symbol "MagicConnectorArguments" needs to be exported by the entry point index.d.ts
-// dist/index.d.ts:978:5 - (ae-forgotten-export) The symbol "wagmi_core" needs to be exported by the entry point index.d.ts
+// dist/index.d.ts:295:5 - (ae-forgotten-export) The symbol "MagicConnectorArguments" needs to be exported by the entry point index.d.ts
+// dist/index.d.ts:966:5 - (ae-forgotten-export) The symbol "wagmi" needs to be exported by the entry point index.d.ts
+// node_modules/wagmi/dist/declarations/src/context.d.ts:19:5 - (ae-forgotten-export) The symbol "DecoratedWagmiClient" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

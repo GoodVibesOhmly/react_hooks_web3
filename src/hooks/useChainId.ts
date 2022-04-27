@@ -1,4 +1,4 @@
-import { useNetwork } from "wagmi";
+import { useNetwork } from "./useNetwork";
 
 /**
  * Hook for accessing the chain ID of the network the current wallet is connected to
@@ -21,5 +21,5 @@ import { useNetwork } from "wagmi";
  * @public
  */
 export function useChainId(): number | undefined {
-  return useNetwork()["0"].data.chain?.id;
+  return useNetwork().activeChain?.id;
 }

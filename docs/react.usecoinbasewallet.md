@@ -13,14 +13,11 @@ import { useCoinbaseWallet } from "@thirdweb-dev/react"
 <b>Signature:</b>
 
 ```typescript
-declare function useCoinbaseWallet(): () => Promise<{
-    data?: wagmi_core.ConnectorData<any> | undefined;
-    error?: Error | undefined;
-}>;
+declare function useCoinbaseWallet(): () => void;
 ```
 <b>Returns:</b>
 
-() =&gt; Promise&lt;{ data?: wagmi\_core.ConnectorData&lt;any&gt; \| undefined; error?: Error \| undefined; }&gt;
+() =&gt; void
 
 ## Example
 

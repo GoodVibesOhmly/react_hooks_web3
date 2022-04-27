@@ -1,10 +1,11 @@
-import { MagicConnector, MagicConnectorArguments } from "./connectors/magic";
+import { MagicConnectorArguments } from "./connectors/magic";
 import {
   Chain,
   SupportedChain,
   defaultSupportedChains,
 } from "./constants/chain";
 import { useSigner } from "./hooks/useSigner";
+import { deserialize, serialize } from "./utils/serialization";
 import { Signer } from "@ethersproject/abstract-signer";
 import {
   IStorage,
@@ -13,14 +14,12 @@ import {
   SUPPORTED_CHAIN_ID,
   ThirdwebSDK,
 } from "@thirdweb-dev/sdk";
+import type { Connector } from "@wagmi/core";
 import React, { createContext, useEffect, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { createWebStoragePersister } from "react-query/createWebStoragePersister";
 import invariant from "tiny-invariant";
-import {
-  WagmiProvider,
-  ProviderProps as WagmiproviderProps,
-  useProvider,
-} from "wagmi";
+import { WagmiProvider, createWagmiClient, useProvider } from "wagmi";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
@@ -29,26 +28,35 @@ import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
  * @internal
  */
 export type InjectedConnectorType =
-  | "injected"
+  | InjectedConnector["id"]
   | "metamask"
-  | { name: "injected" | "metamask"; options?: InjectedConnector["options"] };
+  | {
+      name: InjectedConnector["id"] | "metamask";
+      options?: InjectedConnector["options"];
+    };
 
 /**
  * @internal
  */
 export type WalletConnectConnectorType =
-  | "walletConnect"
-  | { name: "walletConnect"; options: WalletConnectConnector["options"] };
+  | WalletConnectConnector["id"]
+  | {
+      name: WalletConnectConnector["id"];
+      options: Omit<WalletConnectConnector["options"], "rpc" | "chainId">;
+    };
 
 /**
  * @internal
  */
 export type WalletLinkConnectorType =
+  | CoinbaseWalletConnector["id"]
   | "walletLink"
-  | "coinbase"
   | {
-      name: "walletLink" | "coinbase";
-      options: CoinbaseWalletConnector["options"];
+      name: CoinbaseWalletConnector["id"] | "walletLink";
+      options: Omit<
+        CoinbaseWalletConnector["options"],
+        "chainId" | "jsonRpcUrl"
+      >;
     };
 
 /**
@@ -67,8 +75,8 @@ export type MagicConnectorType =
 export type WalletConnector =
   | InjectedConnectorType
   | WalletConnectConnectorType
-  | WalletLinkConnectorType
-  | MagicConnectorType;
+  | WalletLinkConnectorType;
+//   // | MagicConnectorType;
 
 /**
  * @internal
@@ -168,13 +176,13 @@ const defaultChainRpc: ChainRpc<SupportedChain> = defaultSupportedChains.reduce(
   {},
 );
 
-const defaultdAppMeta: DAppMetaData = {
-  name: "thirdweb powered dApp",
-};
+// const defaultdAppMeta: DAppMetaData = {
+//   name: "thirdweb powered dApp",
+// };
 
 const defaultWalletConnectors: Required<
   ThirdwebProviderProps["walletConnectors"]
-> = ["metamask", "walletConnect", "walletLink"];
+> = ["metamask", "walletConnect", "coinbaseWallet"];
 
 /**
  *
@@ -207,7 +215,7 @@ export const ThirdwebProvider = <
     (c) => c.id,
   ) as TSupportedChain[],
   walletConnectors = defaultWalletConnectors,
-  dAppMeta = defaultdAppMeta,
+  dAppMeta,
   desiredChainId,
   storageInterface,
   queryClient,
@@ -215,7 +223,6 @@ export const ThirdwebProvider = <
   children,
 }: React.PropsWithChildren<ThirdwebProviderProps<TSupportedChain>>) => {
   // construct the wagmi options
-
   const _supporrtedChains = useMemo(() => {
     return supportedChains
       .map((c) => {
@@ -238,107 +245,25 @@ export const ThirdwebProvider = <
     }, {} as Record<number, string>);
   }, [chainRpc, _supporrtedChains]);
 
-  const wagmiProps: WagmiproviderProps = useMemo(() => {
-    const walletConnectClientMeta = {
-      name: dAppMeta.name,
-      url: dAppMeta.url || "",
-      icons: [dAppMeta.logoUrl || ""],
-      description: dAppMeta.description || "",
-    };
+  // const wagmiProps: WagmiproviderProps = useMemo(() => {
+  // const walletConnectClientMeta = {
+  //   name: dAppMeta.name,
+  //   url: dAppMeta.url || "",
+  //   icons: [dAppMeta.logoUrl || ""],
+  //   description: dAppMeta.description || "",
+  // };
 
-    const walletLinkClientMeta = {
-      appName: dAppMeta.name,
-      appLogoUrl: dAppMeta.logoUrl,
-      darkMode: dAppMeta.isDarkMode,
-    };
+  // const walletLinkClientMeta = {
+  //   appName: dAppMeta.name,
+  //   appLogoUrl: dAppMeta.logoUrl,
+  //   darkMode: dAppMeta.isDarkMode,
+  // };
 
-    return {
-      autoConnect,
-      connectorStorageKey: "tw:provider:connectors",
-      connectors: ({ chainId }: { chainId?: number }) => {
-        return walletConnectors
-          .map((connector) => {
-            // injected connector
-            if (
-              (typeof connector === "string" &&
-                (connector === "injected" || connector === "metamask")) ||
-              (typeof connector === "object" &&
-                (connector.name === "injected" ||
-                  connector.name === "metamask"))
-            ) {
-              return new InjectedConnector({
-                options:
-                  typeof connector === "string"
-                    ? { shimDisconnect: true, shimChainChangedDisconnect: true }
-                    : connector.options,
-                chains: _supporrtedChains,
-              });
-            }
-            if (
-              (typeof connector === "string" &&
-                connector === "walletConnect") ||
-              (typeof connector === "object" &&
-                connector.name === "walletConnect")
-            ) {
-              return new WalletConnectConnector({
-                options:
-                  typeof connector === "string"
-                    ? {
-                        chainId,
-                        rpc: _rpcUrlMap,
-                        clientMeta: walletConnectClientMeta,
-                        qrcode: true,
-                      }
-                    : {
-                        chainId,
-                        rpc: _rpcUrlMap,
-                        clientMeta: walletConnectClientMeta,
-                        qrcode: true,
-                        ...connector.options,
-                      },
-                chains: _supporrtedChains,
-              });
-            }
-            if (
-              (typeof connector === "string" &&
-                (connector === "coinbase" || connector === "walletLink")) ||
-              (typeof connector === "object" &&
-                (connector.name === "coinbase" ||
-                  connector.name === "walletLink"))
-            ) {
-              const jsonRpcUrl = _rpcUrlMap[chainId || desiredChainId || 1];
-              return new CoinbaseWalletConnector({
-                chains: _supporrtedChains,
-                options:
-                  typeof connector === "string"
-                    ? {
-                        ...walletLinkClientMeta,
-                        jsonRpcUrl,
-                      }
-                    : {
-                        ...walletLinkClientMeta,
-                        jsonRpcUrl,
-                        ...connector.options,
-                      },
-              });
-            }
-            if (typeof connector === "object" && connector.name === "magic") {
-              const jsonRpcUrl = _rpcUrlMap[chainId || desiredChainId || 1];
-              return new MagicConnector({
-                chains: _supporrtedChains,
-                options: {
-                  ...connector.options,
-                  network: { rpcUrl: jsonRpcUrl, chainId: desiredChainId || 1 },
-                  rpcUrls: _rpcUrlMap,
-                },
-              });
-            }
-            return null;
-          })
-          .filter((c) => c !== null);
-      },
-    } as WagmiproviderProps;
-  }, [walletConnectors, _supporrtedChains, dAppMeta]);
+  //   return {
+  //     autoConnect,
+  //     connectorStorageKey: "tw:provider:connectors",
+  //   } as WagmiproviderProps;
+  // }, [autoConnect]);
 
   const defaultSdkReadUrl =
     _rpcUrlMap[(desiredChainId || -1) as keyof typeof _rpcUrlMap];
@@ -356,13 +281,129 @@ export const ThirdwebProvider = <
     };
   }, [sdkOptions, defaultSdkReadUrl]);
 
-  const queryClientWithDefault: QueryClient = useMemo(() => {
-    return queryClient ? queryClient : new QueryClient();
-  }, [queryClient]);
+  const wagmiClient = useMemo(() => {
+    const walletConnectClientMeta = dAppMeta
+      ? {
+          name: dAppMeta.name,
+          url: dAppMeta.url || "",
+          icons: [dAppMeta.logoUrl || ""],
+          description: dAppMeta.description || "",
+        }
+      : undefined;
+
+    // const walletLinkClientMeta = {
+    //   appName: dAppMeta.name,
+    //   appLogoUrl: dAppMeta.logoUrl,
+    //   darkMode: dAppMeta.isDarkMode,
+    // };
+    const injectedConnectorOptions = walletConnectors
+      .map((con) => {
+        if (con === "injected" || con === "metamask") {
+          return { shimDisconnect: true } as InjectedConnector["options"];
+        } else if (
+          typeof con !== "string" &&
+          (con.name === "injected" || con.name === "metamask")
+        ) {
+          return con.options;
+        }
+        return undefined;
+      })
+      .filter(Boolean)[0];
+
+    const walletConnectConnectorOptions = walletConnectors
+      .map((con) => {
+        const defaultOptions = {
+          qrcode: true,
+          clientMeta: walletConnectClientMeta,
+          rpc: _rpcUrlMap,
+          storageId: "tw-walletconnect",
+        } as Omit<WalletConnectConnector["options"], "chainId">;
+        if (con === "walletConnect") {
+          return defaultOptions;
+        } else if (typeof con !== "string" && con.name === "walletConnect") {
+          return {
+            ...defaultOptions,
+            ...con.options,
+          };
+        }
+        return undefined;
+      })
+      .filter(Boolean)[0];
+
+    const coinbaseWalletConnectorOptions = walletConnectors
+      .map((con) => {
+        const defaultOptions = {
+          appName: dAppMeta?.name,
+          appLogoUrl: dAppMeta?.logoUrl,
+          darkMode: dAppMeta?.isDarkMode,
+        } as Omit<CoinbaseWalletConnector["options"], "chainId" | "jsonRpcUrl">;
+
+        if (con === "coinbaseWallet" || con === "walletLink") {
+          return defaultOptions;
+        } else if (
+          typeof con !== "string" &&
+          (con.name === "coinbaseWallet" || con.name === "walletLink")
+        ) {
+          return {
+            ...defaultOptions,
+            ...con.options,
+          };
+        }
+        return undefined;
+      })
+      .filter(Boolean)[0];
+
+    return createWagmiClient({
+      connectors: ({ chainId }) => {
+        return [
+          injectedConnectorOptions
+            ? new InjectedConnector({
+                chains: _supporrtedChains,
+                options: injectedConnectorOptions,
+              })
+            : undefined,
+          walletConnectConnectorOptions
+            ? new WalletConnectConnector({
+                chains: _supporrtedChains,
+                options: { ...walletConnectConnectorOptions, chainId },
+              })
+            : undefined,
+          coinbaseWalletConnectorOptions
+            ? new CoinbaseWalletConnector({
+                chains: _supporrtedChains,
+                options: {
+                  ...coinbaseWalletConnectorOptions,
+                  chainId,
+                  jsonRpcUrl: _rpcUrlMap[chainId || -1],
+                },
+              })
+            : undefined,
+        ].filter(Boolean) as Connector<any, any>[];
+      },
+      queryClient,
+      persister:
+        typeof window !== "undefined"
+          ? createWebStoragePersister({
+              storage: window.localStorage,
+              key: "tw-cache",
+              serialize,
+              deserialize,
+            })
+          : undefined,
+      autoConnect,
+    });
+  }, [
+    _rpcUrlMap,
+    _supporrtedChains,
+    autoConnect,
+    dAppMeta,
+    queryClient,
+    walletConnectors,
+  ]);
 
   return (
-    <QueryClientProvider client={queryClientWithDefault}>
-      <WagmiProvider {...wagmiProps}>
+    <QueryClientProvider client={wagmiClient.queryClient}>
+      <WagmiProvider client={wagmiClient}>
         <ThirdwebSDKProviderWagmiWrapper
           desiredChainId={desiredChainId}
           sdkOptions={sdkOptionsWithDefaults}
@@ -444,7 +485,7 @@ export const ThirdwebSDKProvider: React.FC<
       desiredChainId: desiredChainId || -1,
       _inProvider: true as const,
     }),
-    [sdk],
+    [desiredChainId, sdk],
   );
 
   return (

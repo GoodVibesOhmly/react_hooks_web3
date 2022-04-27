@@ -6,7 +6,8 @@ import {
   MagicSDKAdditionalConfiguration,
 } from "magic-sdk";
 import invariant from "tiny-invariant";
-import { Chain, Connector, normalizeChainId } from "wagmi";
+import { Chain, Connector } from "wagmi";
+import { normalizeChainId } from "wagmi-core";
 
 export interface MagicConnectorArguments
   extends MagicSDKAdditionalConfiguration {
@@ -68,7 +69,7 @@ export class MagicConnector extends Connector {
         this.magic = new m.Magic(apiKey, options);
 
         await this.magic.auth.loginWithMagicLink(configuration);
-        const provider = this.getProvider();
+        const provider = await this.getProvider();
         if (provider.on) {
           provider.on("accountsChanged", this.onAccountsChanged);
           provider.on("chainChanged", this.onChainChanged);
@@ -87,14 +88,14 @@ export class MagicConnector extends Connector {
         throw e;
       }
       return {
-        account: undefined,
+        account: "",
         provider: undefined,
-        chain: undefined,
+        chain: { id: 0, unsupported: true },
       };
     }
   }
   async disconnect() {
-    const provider = this.getProvider();
+    const provider = await this.getProvider();
     if (provider?.removeListener) {
       provider.removeListener("accountsChanged", this.onAccountsChanged);
       provider.removeListener("chainChanged", this.onChainChanged);
@@ -105,7 +106,7 @@ export class MagicConnector extends Connector {
 
   override async switchChain(chainId: number) {
     invariant(!this.isChainUnsupported(chainId), "chain is not supported");
-    const provider = this.getProvider();
+    const provider = await this.getProvider();
     if (provider?.removeListener) {
       provider.removeListener("accountsChanged", this.onAccountsChanged);
       provider.removeListener("chainChanged", this.onChainChanged);
@@ -118,7 +119,9 @@ export class MagicConnector extends Connector {
     };
     await this.connect();
     this.onChainChanged(chainId);
-    return this.chains.find((c) => c.id === chainId);
+    const chain = this.chains.find((c) => c.id === chainId);
+    invariant(chain, "chain not found");
+    return chain;
   }
 
   async getAccount() {
@@ -129,7 +132,7 @@ export class MagicConnector extends Connector {
     const signer = await this.getSigner();
     return await signer.getChainId();
   }
-  getProvider() {
+  async getProvider() {
     invariant(this.magic, "connector is not initialized");
     return new Web3Provider(
       this.magic.rpcProvider as unknown as ExternalProvider,
@@ -139,7 +142,7 @@ export class MagicConnector extends Connector {
     if (!this.magic) {
       await this.connect();
     }
-    return this.getProvider().getSigner();
+    return (await this.getProvider()).getSigner();
   }
   async isAuthorized() {
     try {

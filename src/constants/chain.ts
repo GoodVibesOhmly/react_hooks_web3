@@ -1,103 +1,15 @@
 import { ChainId } from "@thirdweb-dev/sdk";
-import type { Chain as WagmiChain } from "wagmi";
+import { Chain as WagmiChain, chain as wagmiChain } from "wagmi";
 
 export type Chain = WagmiChain;
 
-const chain = {
-  mainnet: {
-    id: ChainId.Mainnet,
-    name: "Mainnet",
-    nativeCurrency: {
-      name: "Ether",
-      symbol: "ETH",
-      decimals: 18,
-    },
-    rpcUrls: ["https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
-    blockExplorers: [
-      {
-        name: "Etherscan",
-        url: "https://etherscan.io",
-      },
-    ],
-  },
-  rinkeby: {
-    id: ChainId.Rinkeby,
-    name: "Rinkeby",
-    nativeCurrency: {
-      name: "Rinkeby Ether",
-      symbol: "rETH",
-      decimals: 18,
-    },
-    rpcUrls: ["https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
-    blockExplorers: [
-      {
-        name: "Etherscan",
-        url: "https://rinkeby.etherscan.io",
-      },
-    ],
-    testnet: true,
-  },
-  goerli: {
-    id: ChainId.Goerli,
-    name: "Goerli",
-    nativeCurrency: {
-      name: "Goerli Ether",
-      symbol: "gETH",
-      decimals: 18,
-    },
-    rpcUrls: ["https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
-    blockExplorers: [
-      {
-        name: "Etherscan",
-        url: "https://goerli.etherscan.io",
-      },
-    ],
-    testnet: true,
-  },
-  polygonMainnet: {
-    id: ChainId.Polygon,
-    name: "Polygon Mainnet",
-    nativeCurrency: {
-      name: "Matic",
-      symbol: "MATIC",
-      decimals: 18,
-    },
-    rpcUrls: [
-      "https://polygon-rpc.com",
-      "https://rpc-mainnet.matic.network",
-      "https://matic-mainnet.chainstacklabs.com",
-      "https://rpc-mainnet.maticvigil.com",
-      "https://rpc-mainnet.matic.quiknode.pro",
-      "https://matic-mainnet-full-rpc.bwarelabs.com",
-    ],
-    blockExplorers: [
-      {
-        name: "Polygonscan",
-        url: "https://polygonscan.com",
-      },
-    ],
-  },
-  polygonTestnetMumbai: {
-    id: ChainId.Mumbai,
-    name: "Polygon Testnet Mumbai",
-    nativeCurrency: {
-      name: "Matic",
-      symbol: "MATIC",
-      decimals: 18,
-    },
-    rpcUrls: [
-      "https://matic-mumbai.chainstacklabs.com",
-      "https://rpc-mumbai.maticvigil.com",
-      "https://matic-testnet-archive-rpc.bwarelabs.com",
-    ],
-    blockExplorers: [
-      {
-        name: "Polygonscan",
-        url: "https://mumbai.polygonscan.com",
-      },
-    ],
-    testnet: true,
-  },
+const chain: Record<string, WagmiChain> = {
+  mainnet: wagmiChain.mainnet,
+  rinkeby: wagmiChain.rinkeby,
+  goerli: wagmiChain.goerli,
+  polygon: wagmiChain.polygon,
+  polygonMumbai: wagmiChain.polygonMumbai,
+  // custom below
   avalanche: {
     id: ChainId.Avalanche,
     name: "Avalanche",
@@ -106,36 +18,15 @@ const chain = {
       symbol: "AVAX",
       decimals: 18,
     },
-    rpcUrls: [
-      "https://api.avax.network/ext/bc/C/rpc",
-      "https://rpc.ankr.com/avalanche",
-    ],
-    blockExplorers: [
-      {
+    rpcUrls: { default: "https://api.avax.network/ext/bc/C/rpc" },
+    blockExplorers: {
+      default: {
         name: "SnowTrace",
         url: "https://snowtrace.io/",
       },
-    ],
+    },
     testnet: false,
-  },
-  // avalancheFuji: {
-  //   id: 43113,
-  //   name: "Avalanche FUJI",
-  //   nativeCurrency: {
-  //     name: "AVAX",
-  //     symbol: "AVAX",
-  //     decimals: 18,
-  //   },
-  //   rpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"],
-  //   blockExplorers: [
-  //     {
-  //       name: "SnowTrace",
-  //       url: "https://testnet.snowtrace.io/",
-  //     },
-  //   ],
-  //   testnet: true,
-  // },
-  // custom added (non wagmi standard)
+  } as WagmiChain,
   fantom: {
     id: ChainId.Fantom,
     name: "Fantom Opera",
@@ -144,15 +35,15 @@ const chain = {
       symbol: "FTM",
       decimals: 18,
     },
-    rpcUrls: ["https://rpc.ftm.tools"],
-    blockExplorerUrls: [
-      {
+    rpcUrls: { default: "https://rpc.ftm.tools" },
+    blockExplorers: {
+      default: {
         name: "FTMScan",
-        url: "https://ftmscan.com/",
+        url: "https://ftmscan.io/",
       },
-    ],
+    },
     testnet: false,
-  },
+  } as WagmiChain,
 } as const;
 
 export const defaultSupportedChains = Object.values(chain);
